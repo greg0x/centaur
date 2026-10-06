@@ -28,7 +28,10 @@ import { slackbotMetrics } from '../src/metrics'
 import { createOpenAiMessageOverridesStrategy } from '../src/message-overrides-strategy'
 import { modelDisplayName } from '../src/response-context'
 import claudeSettings from '../../../harness/claude/settings.json'
+import codexConfig from '../../../harness/codex/config.toml'
 
+// The metadata line names the baked Codex default (harness/codex/config.toml).
+const BAKED_CODEX_MODEL_LABEL = modelDisplayName((codexConfig as { model: string }).model)
 const BOT_TOKEN = 'xoxb-slackbotv2-emulate'
 const USER_TOKEN = 'xoxp-slackbotv2-user'
 const USER_B_TOKEN = 'xoxp-slackbotv2-user-b'
@@ -794,7 +797,7 @@ describe('slackbotv2', () => {
         .filter(call => call.method === 'chat.stopStream')
         .flatMap(call => (Array.isArray(call.body.blocks) ? (call.body.blocks as unknown[]) : []))
         .map(block => JSON.stringify(block))
-        .filter(text => text.includes('Sol 5.6'))
+        .filter(text => text.includes(BAKED_CODEX_MODEL_LABEL))
 
     const parent = await postUserMessage('Response metadata thread context.')
     const firstMention = await sendMessage(`<@${BOT_USER_ID}> start`, { threadTs: parent.ts })
@@ -825,7 +828,7 @@ describe('slackbotv2', () => {
         .filter(call => call.method === 'chat.stopStream')
         .flatMap(call => (Array.isArray(call.body.blocks) ? (call.body.blocks as unknown[]) : []))
         .map(block => JSON.stringify(block))
-        .filter(text => text.includes('Sol 5.6'))
+        .filter(text => text.includes(BAKED_CODEX_MODEL_LABEL))
 
     const parent = await postUserMessage('Service tier thread context.')
     const firstMention = await sendMessage(`<@${BOT_USER_ID}> start`, { threadTs: parent.ts })
